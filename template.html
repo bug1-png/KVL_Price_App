@@ -168,16 +168,17 @@ fillSel("#fDir","ทิศ",uniq(M,"dir").sort());
 fillSel("#fDetail","Unit Detail",uniq(M,"detail").sort());
 $("#fSort").innerHTML='<option value="unit">เรียง: เลขที่ห้อง</option><option value="pa">ราคา ต่ำ→สูง</option><option value="pd">ราคา สูง→ต่ำ</option><option value="na">สุทธิ ต่ำ→สูง</option><option value="nd">สุทธิ สูง→ต่ำ</option>';
 $("#avail").textContent=nf(M.filter(isFree).length);
-let mode=1,evt="Y26",codeF="",unlocked=false;
+let mode=1,evt="E2",codeF="",unlocked=false;
 try{unlocked=sessionStorage.getItem("hs")==="1"}catch(e){}
 const evKey=d=>{const m=/^(\d\d)\/(\d\d)\/(\d\d)$/.exec(d||"");return m?(+m[3])*10000+(+m[2])*100+(+m[1]):99999999};
 const EVS=[...new Set(M.concat(H).map(u=>u.date).filter(Boolean))].sort((a,b)=>evKey(a)-evKey(b));
+const EARLY=EVS.filter(d=>d.includes("/")).slice(0,2);
 const evTxt=d=>/^\d{4}$/.test(d)?"ปี "+d:d;
 const hasCode=u=>codeTxt((mByUnit[u.unit]||u).code)!=="ไม่มีรหัส";
 function drawChips(){
   const arr=tab==="all"?[["free","ว่าง"],["all","ทั้งหมด"],["sold","SOLD"],["lock","ล็อก/ห้ามขาย"],["cancel","รอยกเลิก"]]:[["free","ว่าง"],["all","ทั้งหมด"],["sold","SOLD"]];
   $("#chips").innerHTML=arr.map(([k,l])=>'<div class="chip '+(tab==="hot"?"hot":"")+" "+(chip===k?"on":"")+'" data-k="'+k+'">'+l+"</div>").join("");
-  $("#chips2").innerHTML=[["Y26","ปี 2026"]].concat(EVS.filter(d=>d.includes("/")).map(d=>[d,d]),EVS.filter(d=>/^\d{4}$/.test(d)).map(d=>[d,evTxt(d)]),[["","ทั้งหมด"]]).map(([k,l])=>'<div class="chip ev '+(evt===k?"on":"")+'" data-k="'+esc(k)+'">'+esc(l)+"</div>").join("");
+  $("#chips2").innerHTML=[["E2",EARLY.map(d=>d.slice(0,5)).join(" + ")],["Y26","ปี 2026"]].concat(EVS.filter(d=>d.includes("/")).map(d=>[d,d]),EVS.filter(d=>/^\d{4}$/.test(d)).map(d=>[d,evTxt(d)]),[["","ทั้งหมด"]]).map(([k,l])=>'<div class="chip ev '+(evt===k?"on":"")+'" data-k="'+esc(k)+'">'+esc(l)+"</div>").join("");
   $("#chips3").innerHTML=[["","ทั้งหมด",""],["has","มีรหัส","cd"],["none","ไม่มีรหัส","cd no"]].map(([k,l,c])=>'<div class="chip '+c+" "+(codeF===k?"on":"")+'" data-k="'+k+'">'+l+"</div>").join("");
 }
 function baseMatch(u){
@@ -186,7 +187,7 @@ function baseMatch(u){
   if(chip==="sold"&&st!=="SOLD")return false;
   if(chip==="lock"&&!(st.startsWith("LOCK")||st==="ห้ามขาย"))return false;
   if(chip==="cancel"&&!st.startsWith("รอยกเลิก"))return false;
-  if(evt==="Y26"){if(!/\/26$/.test(u.date||""))return false}else if(evt!==""&&u.date!==evt)return false;
+  if(evt==="E2"){if(!EARLY.includes(u.date))return false}else if(evt==="Y26"){if(!/\/26$/.test(u.date||""))return false}else if(evt!==""&&u.date!==evt)return false;
   if(codeF==="has"&&!hasCode(u))return false;
   if(codeF==="none"&&hasCode(u))return false;
   const pMin=$("#pMin").value,pMax=$("#pMax").value;
@@ -358,7 +359,7 @@ $("#asof").textContent=DATA.meta&&DATA.meta.asof?"ข้อมูล ณ "+DATA.
 let ptm;["#pMin","#pMax"].forEach(id=>$(id).addEventListener("input",()=>{clearTimeout(ptm);ptm=setTimeout(render,250)}));
 $("#ftog").onclick=()=>{const on=$("#filters").classList.toggle("show");$("#ftog").classList.toggle("on",on);if(on)scrollTo(0,0)};
 [["#fTower","tower"],["#fFloor","floor"],["#fType","type"],["#fView","view"],["#fDir","dir"],["#fDetail","detail"],["#fSort","sort"]].forEach(([id,k])=>{$(id).onchange=e=>{f[k]=e.target.value;render()}});
-function setTab(t){tab=t;chip="free";evt="Y26";codeF="";$("#tAll").classList.toggle("on",t==="all");$("#tHot").classList.toggle("on",t==="hot");drawChips();render();scrollTo(0,0)}
+function setTab(t){tab=t;chip="free";evt="E2";codeF="";$("#tAll").classList.toggle("on",t==="all");$("#tHot").classList.toggle("on",t==="hot");drawChips();render();scrollTo(0,0)}
 $("#tAll").onclick=()=>setTab("all");$("#tHot").onclick=()=>setTab("hot");
 window.addEventListener("scroll",()=>{if(shown<list.length&&innerHeight+scrollY>document.body.offsetHeight-700)render(false)},{passive:true});
 drawChips();render();
