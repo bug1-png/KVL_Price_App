@@ -322,9 +322,8 @@ function openSheet(unit){
   if(u){
     s+='<div class="sec">ราคาขาย & ส่วนลด</div>'+wf(u)+shareHtml()+loanHtml();
     s+='<div class="grid">'+kv("หมายเหตุ (#PRO4)",u.remark)+kvm("FREE ALL มูลค่า",u.freeAll)+"</div>";
-    s+='<div class="hs" id="hs"><button class="btn" id="hsb"></button><div class="grid">'+kvm("Base Price2",u.base2)+kvm("Variance",u.variance)+kvm("รวม PRO",u.proTotal)+kvm("CHK DIFF",u.chk)+"</div></div>";
+    s+='<div class="hs" id="hs"><button class="btn" id="hsb"></button><div class="grid">'+kvm("Base Price2",u.base2)+kvm("Variance",u.variance)+kvm("รวม PRO",u.proTotal)+kvm("CHK DIFF",u.chk)+(h?kvm("MAS BASE",h.masBase,"full"):"")+"</div></div>";
   }
-  if(h)s+='<div class="hs" id="hs2"><button class="btn" id="hsb2"></button><div class="grid">'+kvm("MAS BASE",h.masBase)+kvm("BASE2",h.base2)+kvm("FREE ALL",h.freeAll)+kvm("GAP30K",h.gap)+kvm("NEW BASE",h.newBase,"full")+"</div></div>";
   $("#sheet").innerHTML=s;$("#sheetbg").style.display="block";$("#sheet").scrollTop=0;
   if(!sheetHist){try{history.pushState({sheet:1},"");sheetHist=true}catch(e){}}
   setTimeout(()=>{if(curUnit===unit)$("#sheet").classList.add("open")},30);

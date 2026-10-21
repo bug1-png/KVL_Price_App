@@ -26,7 +26,7 @@ const hot = rd(wb.SheetNames.find(n => /^HotDeal_\d{6}/.test(n))).slice(1).filte
   unit: clean(r[3]), plan: clean(r[1]), date: dt(r[2]), tower: clean(r[4]), floor: clean(r[5]), type: clean(r[6]),
   dir: z(r[7]), area: nz(r[8]), view: z(r[9]), status: clean(r[10]), detail: clean(r[11]),
   price: nz(r[12]), disc: nz(r[13]), pro: nz(r[14]), ontop: clean(r[15]),
-  masBase: nz(r[34]), base2: nz(r[35]), freeAll: nz(r[36]), gap: nz(r[37]), newBase: nz(r[38]),
+  masBase: nz(r[34]),
 }));
 const slim = o => { const x = {}; for (const k in o) if (o[k] !== '' && o[k] !== null) x[k] = o[k]; return x; };
 const fmt = d => String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
