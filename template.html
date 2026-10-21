@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b16">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>KAVALON Sales</title>
+<style>
+:root{--bg:#070b16;--card:rgba(255,255,255,.055);--line:rgba(255,255,255,.1);--tx:#eaf0ff;--mut:#8f9bb8;--cy:#22e4ff;--vi:#8b5cf6;--gr:#2bf2a0;--rd:#ff4d6d;--am:#ffb020;--hot:#ff6a2b;--r:18px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans Thai","Sarabun",Roboto,sans-serif;font-size:15px}
+body{background:radial-gradient(900px 500px at 85% -10%,rgba(139,92,246,.28),transparent 60%),radial-gradient(700px 480px at -10% 5%,rgba(34,228,255,.18),transparent 60%),var(--bg);min-height:100vh;padding-bottom:calc(86px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:20;padding:calc(12px + env(safe-area-inset-top)) 14px 10px;background:linear-gradient(180deg,rgba(7,11,22,.96),rgba(7,11,22,.82));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.logo{font-weight:800;letter-spacing:.18em;font-size:17px;background:linear-gradient(90deg,var(--cy),var(--vi));-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo small{display:block;letter-spacing:.08em;font-size:10px;font-weight:500;-webkit-text-fill-color:var(--mut);color:var(--mut)}
+.stat{font-size:12px;color:var(--mut);text-align:right}.stat b{color:var(--gr);font-size:18px}
+.search{display:flex;gap:8px}
+.search input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:14px;color:var(--tx);padding:12px 14px;font-size:16px;outline:none}
+.search input:focus{border-color:var(--cy);box-shadow:0 0 0 3px rgba(34,228,255,.15)}
+.btn{background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:14px;padding:0 14px;font-size:14px;font-weight:600;cursor:pointer}
+.btn.on{background:linear-gradient(135deg,var(--cy),var(--vi));color:#04101c;border-color:transparent}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--mut);font-size:13px;font-weight:600}
+.chip.on{color:#04101c;background:var(--cy);border-color:var(--cy);box-shadow:0 0 14px rgba(34,228,255,.45)}
+.chip.hot.on{background:var(--hot);border-color:var(--hot);box-shadow:0 0 14px rgba(255,106,43,.5)}
+#filters{display:none;padding-bottom:6px;gap:8px;grid-template-columns:1fr 1fr}
+#filters.show{display:grid}
+#filters select{width:100%;background:#111a30;color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:11px;font-size:14px}
+main{padding:12px 14px}
+.count{color:var(--mut);font-size:12px;margin:2px 2px 10px}
+.card{position:relative;background:linear-gradient(160deg,rgba(255,255,255,.075),rgba(255,255,255,.03));border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px;overflow:hidden}
+.card:active{transform:scale(.985)}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--st,var(--mut))}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.unit{font-size:22px;font-weight:800;letter-spacing:.02em}
+.sub{color:var(--mut);font-size:12.5px;margin-top:2px}
+.badge{display:inline-block;padding:4px 10px;border-radius:99px;font-size:11.5px;font-weight:700;color:var(--st);border:1px solid var(--st);background:rgba(255,255,255,.04);white-space:nowrap}
+.price{font-size:12px;color:var(--mut);margin-top:12px}
+.nets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.net{border-radius:14px;padding:9px 11px;border:1px solid var(--line);background:rgba(0,0,0,.25)}
+.net i{display:block;font-style:normal;font-size:10.5px;color:var(--mut);line-height:1.25}
+.net b{font-size:17px;color:var(--cy)}.net.b2 b{color:var(--gr)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{font-size:11.5px;padding:3px 9px;border-radius:8px;background:rgba(139,92,246,.18);color:#c9b6ff}
+.tag.nc{background:rgba(255,176,32,.15);color:var(--am)}
+.tag.hot{background:rgba(255,106,43,.2);color:#ff9f73}
+.more{width:100%;padding:14px;margin:6px 0 12px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(7,11,22,.9);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid var(--line)}
+nav button{flex:1;padding:13px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--mut);font-size:15px;font-weight:700}
+nav button.on{color:#04101c;background:linear-gradient(135deg,var(--cy),var(--vi));border-color:transparent}
+nav button.hot.on{background:linear-gradient(135deg,var(--hot),#ff2d75)}
+#sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40;display:none}
+#sheet{position:fixed;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;z-index:41;background:linear-gradient(180deg,#121b34,#0a1020);border-radius:26px 26px 0 0;border:1px solid var(--line);padding:8px 16px calc(28px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .28s ease;-webkit-overflow-scrolling:touch}
+#sheet.open{transform:none}
+.grab{width:44px;height:5px;border-radius:9px;background:var(--line);margin:4px auto 12px}
+.x{position:absolute;right:14px;top:14px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--tx);font-size:18px}
+.sec{margin-top:16px;font-size:12px;letter-spacing:.12em;color:var(--cy);font-weight:700;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.kv{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 11px;min-width:0}
+.kv i{display:block;font-style:normal;font-size:11px;color:var(--mut)}
+.kv b{font-size:14.5px;word-break:break-word}.kv.full{grid-column:1/-1}
+.big{font-size:26px!important}
+.hs{margin-top:20px;border:1px dashed rgba(255,176,32,.5);border-radius:16px;padding:12px;background:rgba(255,176,32,.05)}
+.hs .btn{width:100%;padding:13px;color:var(--am);border-color:rgba(255,176,32,.5)}
+.hs .grid{display:none}.hs.open .grid{display:grid}
+.lbl{font-size:11.5px;color:var(--mut);margin:8px 2px 0;letter-spacing:.04em}
+.chip.ev.on{background:var(--vi);border-color:var(--vi);color:#fff;box-shadow:0 0 14px rgba(139,92,246,.55)}
+.chip.cd.on{background:var(--am);border-color:var(--am);box-shadow:0 0 14px rgba(255,176,32,.45)}
+.chip.cd.no.on{background:var(--rd);border-color:var(--rd);color:#fff;box-shadow:0 0 14px rgba(255,77,109,.5)}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px;margin:12px 0 4px;gap:4px}
+.seg button{flex:1;padding:10px 6px;border-radius:11px;border:0;background:transparent;color:var(--mut);font-size:13px;font-weight:700;line-height:1.25}
+.seg button.on{background:linear-gradient(135deg,var(--cy),var(--vi));color:#04101c}
+.code{display:inline-block;margin-top:8px;font-size:19px;font-weight:800;letter-spacing:.04em;padding:3px 12px;border-radius:10px;background:rgba(34,228,255,.12);color:var(--cy);border:1px solid rgba(34,228,255,.45)}
+.code.none{background:rgba(255,77,109,.14);color:#ff4d6d;border-color:rgba(255,77,109,.6)}
+.hse{font-size:14px;font-weight:600;color:var(--mut);margin-left:4px}
+.ev{display:inline-block;margin-top:8px;padding:5px 11px;border-radius:10px;background:rgba(139,92,246,.22);border:1px solid rgba(139,92,246,.6);color:#d6c8ff;font-size:13px;font-weight:700}
+.calc{margin-top:10px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.25);padding:6px 12px}
+.calc div{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;font-size:13px;color:var(--mut)}
+.calc div b{color:var(--tx);font-size:15px}
+.calc .dc b{color:var(--am)}
+.calc .nt{border-top:1px dashed var(--line);margin-top:2px;padding-top:7px}
+.calc .nt b{font-size:22px;color:var(--cy)}.calc.m2 .nt b{color:var(--gr)}
+.oh{margin-top:16px;border:1px solid rgba(139,92,246,.5);border-radius:16px;padding:12px;background:rgba(139,92,246,.08)}
+.oh p{margin:4px 0 0;font-size:12px;color:var(--mut)}
+#pin{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.75)}
+#pin .box{width:min(320px,86vw);background:#121b34;border:1px solid var(--line);border-radius:20px;padding:20px;text-align:center}
+#pin input{width:100%;margin:14px 0 8px;text-align:center;font-size:28px;letter-spacing:.4em;background:#0a1020;border:1px solid var(--line);border-radius:12px;color:var(--tx);padding:10px;outline:none}
+#pin .err{color:var(--rd);font-size:13px;min-height:18px}
+#pin .row2{display:flex;gap:8px;margin-top:8px}#pin .btn{flex:1;padding:12px}
+.hd{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start}
+.info{padding:30px 0 0 10px;border-left:1px solid var(--line);font-size:12px;line-height:1.55;color:var(--tx);min-width:0}
+.info i{font-style:normal;color:var(--mut);font-size:11px;margin-right:3px}
+.info b{font-weight:600}
+.calc .nm{border-top:1px dashed var(--line);margin-top:3px;padding-top:7px}
+.calc .nm span{color:var(--tx);font-weight:700}.calc .nm b{color:var(--cy);font-size:19px}
+.calc .ohh{color:#c9b6ff;font-size:12px;padding-top:9px;font-weight:700;border-top:1px solid rgba(139,92,246,.35);margin-top:6px}
+.calc .ohr span{color:#c9b6ff}.calc .ohr b{color:#c9b6ff}
+.calc .nt span{color:var(--tx);font-weight:700}.calc.m2 .nt b{color:var(--gr);font-size:24px}
+.asof{margin-top:4px;font-size:11px;color:var(--gr);letter-spacing:.02em}
+.pr{grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--mut);font-size:12px}
+.pr span{flex-basis:100%}.pr b{color:var(--mut)}
+.pr input{flex:1;min-width:0;background:#111a30;color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:11px;font-size:15px;outline:none}
+.pr input:focus{border-color:var(--cy)}
+.loanb{width:100%;margin-top:12px;padding:13px;color:var(--cy);border-color:rgba(34,228,255,.45);font-size:14px}
+#loanp{display:none;margin-top:10px;border:1px solid rgba(34,228,255,.3);border-radius:16px;padding:12px;background:rgba(34,228,255,.04)}
+#loanp.open{display:block}
+.yrs{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.yrs .chip{padding:9px 16px;font-size:14px}
+.yrs input{width:70px;background:#111a30;color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:9px;font-size:15px;text-align:center;outline:none}
+.yrs .go{padding:9px 14px;border-radius:12px;border:0;background:linear-gradient(135deg,var(--cy),var(--vi));color:#04101c;font-weight:700;font-size:14px}
+.lr{margin-top:10px;display:grid;gap:8px}
+.lr div{border:1px solid var(--line);border-radius:12px;padding:9px 12px;background:rgba(0,0,0,.25)}
+.lr i{display:block;font-style:normal;font-size:11.5px;color:var(--mut)}
+.lr b{font-size:22px}.lr .a b{color:var(--gr)}.lr .b b{color:var(--am)}.lr small{font-size:12px;color:var(--mut);font-weight:400}
+.lr p{margin:2px 2px 0;font-size:11.5px;color:var(--mut)}
+.shr{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;margin-top:12px}
+.shr .btn{padding:13px 8px;font-size:14px}
+.shr .line{background:#06c755;border-color:#06c755;color:#fff}
+.empty{text-align:center;color:var(--mut);padding:50px 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div><div class="logo">KAVALON<small>SALES PRICE APP</small></div><div class="asof" id="asof"></div></div><div class="stat"><b id="avail">-</b><br>ห้องว่าง</div></div>
+  <div class="search"><input id="q" type="search" inputmode="search" placeholder="ค้นหา เลขที่ห้อง / บ้านเลขที่ / รหัส"><button class="btn" id="ftog">ตัวกรอง</button></div>
+</header>
+<main>
+  <div id="filters">
+    <select id="fTower"></select><select id="fFloor"></select>
+    <select id="fType"></select><select id="fView"></select>
+    <select id="fDir"></select><select id="fSort"></select>
+    <select id="fDetail" style="grid-column:1/-1"></select>
+    <div class="pr"><span>ราคาสุทธิหลังหัก CashBack</span><input id="pMin" type="number" inputmode="numeric" placeholder="ต่ำสุด"><b>–</b><input id="pMax" type="number" inputmode="numeric" placeholder="สูงสุด"></div>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="lbl">📅 แผนกำหนดห้องเสร็จ (โอนฯ)</div>
+  <div class="chips" id="chips2"></div>
+  <div class="lbl">🔑 รหัสห้อง</div>
+  <div class="chips" id="chips3"></div>
+  <div class="count" id="count"></div><div id="list"></div><button class="btn more" id="more" style="display:none">แสดงเพิ่ม</button></main>
+<nav><button id="tAll" class="on">🏢 ทุกยูนิต</button><button id="tHot" class="hot">🔥 HOT DEAL</button></nav>
+<div id="pin"><div class="box"><b style="font-size:17px">🔒 ข้อมูล Head Sales</b><div class="sub">กรอกรหัสเพื่อดูข้อมูล</div><input id="pinin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"><div class="err" id="pinerr"></div><div class="row2"><button class="btn" id="pinx">ยกเลิก</button><button class="btn on" id="pinok">ยืนยัน</button></div></div></div>
+<div id="sheetbg"></div><div id="sheet"></div>
+<script>
+const DATA=__DATA__;
+const M=DATA.master,H=DATA.hot,hotKey={},mByUnit={};
+H.forEach(h=>hotKey[h.unit]=h);M.forEach(u=>mByUnit[u.unit]=u);
+const $=s=>document.querySelector(s);
+const nf=n=>(n==null||n==="")?"-":Number(n).toLocaleString("th-TH");
+const baht=n=>n==null?"-":"฿"+nf(n);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const stClass=s=>{s=s||"";if(s.startsWith("แปลงว่าง"))return[s.includes("Lease")?"ว่าง • Lease to Own":"ว่าง","#2bf2a0"];if(s==="SOLD")return["SOLD","#ff4d6d"];if(s.startsWith("รอยกเลิก"))return["รอยกเลิก","#ffb020"];return[s.trim()||"-","#8f9bb8"]};
+const isFree=u=>(u.status||"").startsWith("แปลงว่าง");
+const codeTxt=c=>(c==null||c===""||c===0||c==="0"||c==="ไม่มีรหัส")?"ไม่มีรหัส":c;
+let tab="all",chip="free",shown=0,PAGE=40,list=[];
+const f={tower:"",floor:"",type:"",view:"",dir:"",detail:"",sort:"unit"};
+const uniq=(a,k)=>[...new Set(a.map(x=>x[k]).filter(v=>v!==""&&v!=null))];
+function fillSel(id,label,vals){$(id).innerHTML='<option value="">'+label+': ทั้งหมด</option>'+vals.map(v=>"<option>"+esc(v)+"</option>").join("")}
+fillSel("#fTower","Tower",uniq(M,"tower").sort());
+fillSel("#fFloor","ชั้น",uniq(M,"floor").sort((a,b)=>a-b));
+fillSel("#fType","Type",uniq(M,"type").sort());
+fillSel("#fView","วิว",uniq(M,"view").sort());
+fillSel("#fDir","ทิศ",uniq(M,"dir").sort());
+fillSel("#fDetail","Unit Detail",uniq(M,"detail").sort());
+$("#fSort").innerHTML='<option value="unit">เรียง: เลขที่ห้อง</option><option value="pa">ราคา ต่ำ→สูง</option><option value="pd">ราคา สูง→ต่ำ</option><option value="na">สุทธิ ต่ำ→สูง</option><option value="nd">สุทธิ สูง→ต่ำ</option>';
+$("#avail").textContent=nf(M.filter(isFree).length);
+let mode=1,evt="Y26",codeF="",unlocked=false;
+try{unlocked=sessionStorage.getItem("hs")==="1"}catch(e){}
+const evKey=d=>{const m=/^(\d\d)\/(\d\d)\/(\d\d)$/.exec(d||"");return m?(+m[3])*10000+(+m[2])*100+(+m[1]):99999999};
+const EVS=[...new Set(M.concat(H).map(u=>u.date).filter(Boolean))].sort((a,b)=>evKey(a)-evKey(b));
+const evTxt=d=>/^\d{4}$/.test(d)?"ปี "+d:d;
+const hasCode=u=>codeTxt((mByUnit[u.unit]||u).code)!=="ไม่มีรหัส";
+function drawChips(){
+  const arr=tab==="all"?[["free","ว่าง"],["all","ทั้งหมด"],["sold","SOLD"],["lock","ล็อก/ห้ามขาย"],["cancel","รอยกเลิก"]]:[["free","ว่าง"],["all","ทั้งหมด"],["sold","SOLD"]];
+  $("#chips").innerHTML=arr.map(([k,l])=>'<div class="chip '+(tab==="hot"?"hot":"")+" "+(chip===k?"on":"")+'" data-k="'+k+'">'+l+"</div>").join("");
+  $("#chips2").innerHTML=[["Y26","ปี 2026"]].concat(EVS.filter(d=>d.includes("/")).map(d=>[d,d]),EVS.filter(d=>/^\d{4}$/.test(d)).map(d=>[d,evTxt(d)]),[["","ทั้งหมด"]]).map(([k,l])=>'<div class="chip ev '+(evt===k?"on":"")+'" data-k="'+esc(k)+'">'+esc(l)+"</div>").join("");
+  $("#chips3").innerHTML=[["","ทั้งหมด",""],["has","มีรหัส","cd"],["none","ไม่มีรหัส","cd no"]].map(([k,l,c])=>'<div class="chip '+c+" "+(codeF===k?"on":"")+'" data-k="'+k+'">'+l+"</div>").join("");
+}
+function baseMatch(u){
+  const st=u.status||"";
+  if(chip==="free"&&!isFree(u))return false;
+  if(chip==="sold"&&st!=="SOLD")return false;
+  if(chip==="lock"&&!(st.startsWith("LOCK")||st==="ห้ามขาย"))return false;
+  if(chip==="cancel"&&!st.startsWith("รอยกเลิก"))return false;
+  if(evt==="Y26"){if(!/\/26$/.test(u.date||""))return false}else if(evt!==""&&u.date!==evt)return false;
+  if(codeF==="has"&&!hasCode(u))return false;
+  if(codeF==="none"&&hasCode(u))return false;
+  const pMin=$("#pMin").value,pMax=$("#pMax").value;
+  if(pMin!==""||pMax!==""){const n=tab==="hot"?u.pro:(u.price==null?null:u.price-(u.cb||0));
+    if(n==null||(pMin!==""&&n<+pMin)||(pMax!==""&&n>+pMax))return false}
+  for(const k of["tower","floor","type","view","dir","detail"])if(f[k]!==""&&String(u[k])!==f[k])return false;
+  const q=$("#q").value.trim().toLowerCase();
+  if(q){const m=mByUnit[u.unit]||u;if(!(u.unit+" "+(m.house||"")+" "+(m.code||"")+" "+(u.type||"")).toLowerCase().includes(q))return false}
+  return true;
+}
+const disc=u=>mode===1?(u.cb||0):(u.cbAll||0);
+const netM=u=>u.price==null?null:u.price-disc(u);
+const reserve=u=>(u.ww1||0)+(u.ww2||0)+(u.onhand||0);
+function sortList(a){
+  const s=f.sort;if(s==="unit")return a;
+  const hot=tab==="hot";
+  const key=s[0]==="p"?(u=>u.price):(u=>hot?u.pro:netM(u)),dir=s.endsWith("a")?1:-1;
+  return a.sort((x,y)=>((key(x)==null?1e15:key(x))-(key(y)==null?1e15:key(y)))*dir);
+}
+function render(reset){
+  if(reset!==false){
+    list=sortList((tab==="hot"?H:M).filter(baseMatch));shown=0;$("#list").innerHTML="";
+    $("#count").textContent="พบ "+nf(list.length)+" ยูนิต"+(tab==="hot"?" • HOT DEAL"+(DATA.meta&&DATA.meta.hot?" ณ "+DATA.meta.hot:""):"");
+    if(!list.length)$("#list").innerHTML='<div class="empty">ไม่พบยูนิตตามเงื่อนไข</div>';
+  }
+  const next=list.slice(shown,shown+PAGE);shown+=next.length;
+  $("#list").insertAdjacentHTML("beforeend",next.map(tab==="hot"?cardHot:card).join(""));
+  $("#more").style.display=shown<list.length?"block":"none";
+}
+const viewTxt=v=>v==="ใน"?"วิวใน":v==="นอก"?"วิวนอก":"-";
+const codeBadge=(c,big)=>{const t=codeTxt(c);return '<div class="code '+(t==="ไม่มีรหัส"?"none":"")+'"'+(big?' style="font-size:24px"':"")+'>'+(t==="ไม่มีรหัส"?"ไม่มีรหัส":"รหัส "+esc(t))+"</div>"};
+const evBadge=d=>d?'<div class="ev">📅 ห้องเสร็จ/โอนฯ '+esc(evTxt(d))+"</div>":"";
+const title=(unit,house,big)=>'<div class="unit"'+(big?' style="font-size:30px;padding-right:44px"':"")+'>'+esc(unit)+(house?'<span class="hse">('+esc(house)+")</span>":"")+"</div>";
+const calc=(u,m)=>{const d=m===1?(u.cb||0):(u.cbAll||0);return '<div class="calc '+(m===2?"m2":"")+'"><div><span>ราคาขาย</span><b>'+baht(u.price)+'</b></div><div class="dc"><span>'+(m===1?"ส่วนลด (CashBack)":"ส่วนลดรวมทุกโปร")+'</span><b>−'+baht(d)+'</b></div><div class="nt"><span>ราคาสุทธิ</span><b>'+baht(u.price==null?null:u.price-d)+"</b></div></div>"};
+const xtags=u=>(u.detail&&u.detail!=="Standard"?'<span class="tag nc">🛋 '+esc(u.detail)+"</span>":"")+(u.open&&u.open!=="OPEN"?'<span class="tag">'+esc(u.open)+"</span>":"");
+function card(u){
+  const st=stClass(u.status),hot=hotKey[u.unit];
+  return '<div class="card" style="--st:'+st[1]+'" data-u="'+esc(u.unit)+'">'+
+  '<div class="row"><div>'+title(u.unit,u.house)+'</div><span class="badge" style="--st:'+st[1]+'">'+esc(st[0])+'</span></div>'+
+  codeBadge(u.code)+
+  '<div class="sub" style="margin-top:8px">'+esc(u.type)+' • '+(u.area?nf(u.area)+" ตร.ม.":"-")+' • ชั้น '+esc(u.floor)+' • '+esc(u.dir||"-")+' • <b style="color:var(--tx)">'+viewTxt(u.view)+'</b></div>'+
+  evBadge(u.date)+calc(u,mode)+
+  (hot||xtags(u)?'<div class="tags">'+(hot?'<span class="tag hot">🔥 HOT DEAL</span>':"")+xtags(u)+"</div>":"")+'</div>';
+}
+function cardHot(h){
+  const st=stClass(h.status),m=mByUnit[h.unit]||{};
+  return '<div class="card" style="--st:var(--hot)" data-u="'+esc(h.unit)+'">'+
+  '<div class="row"><div>'+title(h.unit,m.house)+'</div><span class="badge" style="--st:'+st[1]+'">'+esc(st[0])+'</span></div>'+
+  codeBadge(m.code)+
+  '<div class="sub" style="margin-top:8px">'+esc(h.type)+' • '+(h.area?nf(h.area)+" ตร.ม.":"-")+' • ชั้น '+esc(h.floor)+' • '+esc(h.dir||"-")+' • <b style="color:var(--tx)">'+viewTxt(h.view)+'</b></div>'+
+  evBadge(h.date)+hotCalc(h)+
+  '<div class="tags"><span class="tag hot">+ '+esc(h.ontop||"")+'</span>'+xtags(h)+(h.plan?'<span class="tag">'+esc(h.plan)+"</span>":"")+'</div></div>';
+}
+const hotCalc=h=>'<div class="calc" style="border-color:rgba(255,106,43,.5)"><div><span>ราคาขาย</span><b>'+baht(h.price)+'</b></div><div class="dc"><span>ส่วนลด HOT DEAL</span><b>−'+baht(h.disc)+'</b></div><div class="nt"><span>PRO PRICE</span><b style="color:#ffb08a">'+baht(h.pro)+"</b></div></div>";
+const kv=(l,v,c)=>'<div class="kv '+(c||"")+'"><i>'+l+'</i><b>'+(v==null||v===""?"-":esc(v))+"</b></div>";
+const kvm=(l,v,c)=>'<div class="kv '+(c||"")+'"><i>'+l+'</i><b>'+baht(v)+"</b></div>";
+let curUnit=null;const hsOpen={};
+const wf=u=>{
+  const a=u.price,c1=u.cb||0,w1=u.ww1||0,w2=u.ww2||0,oh=u.onhand||0;
+  const n1=a==null?null:a-c1,n2=a==null?null:a-c1-w1-w2-oh;
+  const r=(l,v,c)=>'<div class="'+(c||"")+'"><span>'+l+'</span><b>'+v+'</b></div>';
+  return '<div class="calc m2">'+r("ราคาขาย",baht(a))+r("ส่วนลด CashBack (#PRO1)","−"+baht(c1),"dc")+r("ราคาสุทธิ หลังหัก CashBack",baht(n1),"nm")+
+  '<div class="ohh">💼 On-hand เซลล์ (เผื่อปิดการขาย)</div>'+
+  r("#PRO2 WIN-WIN (ผู้แนะนำ)","−"+baht(w1),"ohr")+r("#PRO2-1 WIN-WIN (ผู้ซื้อใหม่)","−"+baht(w2),"ohr")+r("#PRO3 ON HAND","−"+baht(oh),"ohr")+
+  r("ราคาสุทธิ หลังหักโปรทั้งหมด",baht(n2),"nt")+"</div>";
+};
+const shareHtml=()=>'<div class="shr"><button class="btn line" id="shline">💬 ส่งเข้า LINE</button><button class="btn" id="shcopy">📋 คัดลอก</button></div>';
+function shareText(unit){
+  const u=mByUnit[unit],h=hotKey[unit],m=(n)=>nf(n);
+  const st=u.status||"";const ic=st.startsWith("แปลงว่าง")?"✅":st==="SOLD"?"❌":"⛔";
+  const code=codeTxt(u.code),a=u.price,c1=u.cb||0,w1=u.ww1||0,w2=u.ww2||0,oh=u.onhand||0;
+  const L=[];
+  L.push("🏢 KAVALON","━━━━━━━━━━━━━━");
+  L.push("📍 "+u.unit+(u.house?"  ("+u.house+")":""));
+  L.push("🔑 รหัส: "+(code==="ไม่มีรหัส"?"❗ไม่มีรหัส":code));
+  L.push(ic+" สถานะ: "+(stClass(st)[0]));
+  L.push("","🛏 "+(u.type||"-"));
+  L.push("📐 "+(u.area?m(u.area)+" ตร.ม.":"-")+" • ชั้น "+(u.floor||"-")+" • "+(u.dir||"-")+" • "+viewTxt(u.view));
+  if(u.detail)L.push("🏷 "+u.detail);
+  if(u.date)L.push("📅 ห้องเสร็จ/โอนฯ: "+evTxt(u.date)+(u.plan?" ("+u.plan+")":""));
+  L.push("━━━━━━━━━━━━━━");
+  L.push("💰 ราคาขาย        "+m(a));
+  L.push("➖ CashBack      -"+m(c1));
+  L.push("🟦 สุทธิหลัง CashBack");
+  L.push("      "+m(a==null?null:a-c1)+" บาท","");
+  L.push("💼 On-hand เซลล์");
+  L.push("  • WIN-WIN ผู้แนะนำ   -"+m(w1));
+  L.push("  • WIN-WIN ผู้ซื้อใหม่  -"+m(w2));
+  L.push("  • ON HAND             -"+m(oh));
+  L.push("🎯 สุทธิหลังหักโปรทั้งหมด");
+  L.push("      "+m(a==null?null:a-c1-w1-w2-oh)+" บาท");
+  L.push("━━━━━━━━━━━━━━");
+  if(u.remark||u.freeAll)L.push("📝 "+(u.remark||"")+(u.freeAll?(u.remark?" • ":"")+"FREE ALL มูลค่า "+m(u.freeAll):""));
+  if(h)L.push("🔥 HOT DEAL: PRO PRICE "+m(h.pro)+(h.ontop?" + "+h.ontop:""));
+  L.push("🕒 ข้อมูล ณ "+((DATA.meta&&DATA.meta.asof)||"-"),"🔒 ใช้ภายในเท่านั้น");
+  return L.join("\n");
+}
+function wireShare(unit){
+  const l=$("#shline"),c=$("#shcopy");if(!l)return;
+  l.onclick=()=>{window.open("https://line.me/R/msg/text/?"+encodeURIComponent(shareText(unit)),"_blank")};
+  c.onclick=async()=>{
+    const txt=shareText(unit);let ok=false;
+    try{await navigator.clipboard.writeText(txt);ok=true}catch(e){
+      try{const ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();ok=document.execCommand("copy");ta.remove()}catch(e2){}}
+    c.textContent=ok?"✓ คัดลอกแล้ว":"คัดลอกไม่ได้";setTimeout(()=>{c.textContent="📋 คัดลอก"},1800);
+  };
+}
+const pmt=(P,rate,y)=>{const r=rate/1200,n=y*12;return P*r/(1-Math.pow(1+r,-n))};
+const loanHtml=()=>'<button class="btn loanb" id="loanb">🏦 คำนวณค่างวดผ่อนธนาคาร</button><div id="loanp"><div class="yrs"><span class="sub">ระยะเวลา</span>'+[10,20,30].map(y=>'<div class="chip" data-y="'+y+'">'+y+' ปี</div>').join("")+'<input id="loany" type="number" inputmode="numeric" placeholder="ปี" min="1" max="60"><button class="go" id="loango">คำนวณ</button></div><div class="lr" id="loanr"></div></div>';
+function wireLoan(price){
+  const b=$("#loanb");if(!b)return;
+  b.onclick=()=>$("#loanp").classList.toggle("open");
+  const calc=y=>{
+    const out=$("#loanr");
+    if(!(y>=1&&y<=60)||price==null){out.innerHTML='<p>กรอกจำนวนปี 1-60</p>';return}
+    document.querySelectorAll("#loanp .chip").forEach(c=>c.classList.toggle("on",+c.dataset.y===y));
+    const f0=v=>Math.round(v).toLocaleString("th-TH");
+    out.innerHTML='<div class="a"><i>เรตเฉลี่ย 3% (3 ปีแรก)</i><b>฿'+f0(pmt(price,3,y))+' <small>/เดือน</small></b></div><div class="b"><i>เรตดอกเบี้ย 6% (เฉลี่ยตลอดสัญญา)</i><b>฿'+f0(pmt(price,6,y))+' <small>/เดือน</small></b></div><p>คำนวณจากราคาหน้าสัญญา ฿'+f0(price)+' (ก่อนหักส่วนลด) • '+y+' ปี</p>';
+  };
+  document.querySelectorAll("#loanp .chip").forEach(c=>c.onclick=()=>{$("#loany").value="";calc(+c.dataset.y)});
+  $("#loango").onclick=()=>{const y=+$("#loany").value;document.querySelectorAll("#loanp .chip").forEach(c=>c.classList.remove("on"));calc(y)};
+}
+function openSheet(unit){
+  curUnit=unit;
+  const u=mByUnit[unit],h=hotKey[unit],base=u||h,st=stClass(base.status);
+  const line=(l,v)=>'<div><i>'+l+'</i> '+esc(v||"-")+"</div>";
+  const info='<div class="info">'+line("Unit Detail",base.detail)+line("TYPE",base.type)+"<div><b>"+(base.area?nf(base.area)+" ตร.ม.":"-")+"</b> • "+esc(base.dir||"-")+" • <b>"+viewTxt(base.view)+"</b></div></div>";
+  let s='<div class="grab"></div><button class="x" id="xc">✕</button>';
+  s+='<div class="hd"><div><div class="unit" style="font-size:27px">'+esc(unit)+(u&&u.house?'<span class="hse">('+esc(u.house)+")</span>":"")+'</div><span class="badge" style="--st:'+st[1]+'">'+esc(st[0])+"</span><br>"+codeBadge(u&&u.code,true)+"</div>"+info+"</div>";
+  s+="<div>"+evBadge(base.date)+(base.plan?' <span class="ev" style="background:rgba(255,255,255,.06);border-color:var(--line);color:var(--tx)">'+esc(base.plan)+"</span>":"")+"</div>";
+  if(h)s+='<div class="sec" style="color:var(--hot)">🔥 HOT DEAL</div>'+hotCalc(h)+'<div class="grid">'+kv("ON TOP",h.ontop,"full")+"</div>";
+  if(u){
+    s+='<div class="sec">ราคาขาย & ส่วนลด</div>'+wf(u)+shareHtml()+loanHtml();
+    s+='<div class="grid">'+kv("หมายเหตุ (#PRO4)",u.remark)+kvm("FREE ALL มูลค่า",u.freeAll)+"</div>";
+    s+='<div class="hs" id="hs"><button class="btn" id="hsb"></button><div class="grid">'+kvm("Base Price2",u.base2)+kvm("Variance",u.variance)+kvm("รวม PRO",u.proTotal)+kvm("CHK DIFF",u.chk)+"</div></div>";
+  }
+  if(h)s+='<div class="hs" id="hs2"><button class="btn" id="hsb2"></button><div class="grid">'+kvm("MAS BASE",h.masBase)+kvm("BASE2",h.base2)+kvm("FREE ALL",h.freeAll)+kvm("GAP30K",h.gap)+kvm("NEW BASE",h.newBase,"full")+"</div></div>";
+  $("#sheet").innerHTML=s;$("#sheetbg").style.display="block";$("#sheet").scrollTop=0;
+  if(!sheetHist){try{history.pushState({sheet:1},"");sheetHist=true}catch(e){}}
+  setTimeout(()=>{if(curUnit===unit)$("#sheet").classList.add("open")},30);
+  document.body.style.overflow="hidden";
+  $("#xc").onclick=()=>closeSheet();
+  wireLoan(base.price);
+  wireShare(unit);
+  [["#hsb","#hs"],["#hsb2","#hs2"]].forEach(([b,w])=>{const bt=$(b);if(!bt)return;const el=$(w);
+    if(unlocked&&hsOpen[w])el.classList.add("open");
+    const sync=()=>{bt.textContent=el.classList.contains("open")?"🔓 ซ่อนข้อมูล Head Sales":"🔒 แสดงข้อมูล Head Sales"};sync();
+    bt.onclick=()=>{const go=()=>{el.classList.toggle("open");hsOpen[w]=el.classList.contains("open");sync()};if(unlocked)go();else askPin(go)}});
+}
+let sheetHist=false;
+function closeSheet(fromPop){
+  curUnit=null;$("#sheet").classList.remove("open");$("#sheetbg").style.display="none";document.body.style.overflow="";
+  if(sheetHist){sheetHist=false;if(fromPop!==true){try{history.back()}catch(e){}}}
+}
+window.addEventListener("popstate",()=>{if($("#sheet").classList.contains("open"))closeSheet(true)});
+let pinCb=null;
+function askPin(cb){pinCb=cb;$("#pinin").value="";$("#pinerr").textContent="";$("#pin").style.display="flex";setTimeout(()=>$("#pinin").focus(),50)}
+function pinSubmit(){if($("#pinin").value==="9999"){unlocked=true;try{sessionStorage.setItem("hs","1")}catch(e){}$("#pin").style.display="none";const c=pinCb;pinCb=null;if(c)c()}else{$("#pinerr").textContent="รหัสไม่ถูกต้อง";$("#pinin").value=""}}
+$("#pinok").onclick=pinSubmit;$("#pinin").addEventListener("keydown",e=>{if(e.key==="Enter")pinSubmit()});
+$("#pinx").onclick=()=>{$("#pin").style.display="none";pinCb=null};
+$("#sheetbg").onclick=()=>closeSheet();
+$("#list").addEventListener("click",e=>{const c=e.target.closest(".card");if(c)openSheet(c.dataset.u)});
+$("#chips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;chip=c.dataset.k;drawChips();render()});
+$("#chips2").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;evt=c.dataset.k;drawChips();render()});
+$("#chips3").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;codeF=c.dataset.k;drawChips();render()});
+$("#more").onclick=()=>render(false);
+let tmr;$("#q").addEventListener("input",()=>{clearTimeout(tmr);tmr=setTimeout(render,180)});
+$("#asof").textContent=DATA.meta&&DATA.meta.asof?"ข้อมูล ณ "+DATA.meta.asof:"";
+let ptm;["#pMin","#pMax"].forEach(id=>$(id).addEventListener("input",()=>{clearTimeout(ptm);ptm=setTimeout(render,250)}));
+$("#ftog").onclick=()=>{const on=$("#filters").classList.toggle("show");$("#ftog").classList.toggle("on",on);if(on)scrollTo(0,0)};
+[["#fTower","tower"],["#fFloor","floor"],["#fType","type"],["#fView","view"],["#fDir","dir"],["#fDetail","detail"],["#fSort","sort"]].forEach(([id,k])=>{$(id).onchange=e=>{f[k]=e.target.value;render()}});
+function setTab(t){tab=t;chip="free";evt="Y26";codeF="";$("#tAll").classList.toggle("on",t==="all");$("#tHot").classList.toggle("on",t==="hot");drawChips();render();scrollTo(0,0)}
+$("#tAll").onclick=()=>setTab("all");$("#tHot").onclick=()=>setTab("hot");
+window.addEventListener("scroll",()=>{if(shown<list.length&&innerHeight+scrollY>document.body.offsetHeight-700)render(false)},{passive:true});
+drawChips();render();
+</script>
+</body>
+</html>
