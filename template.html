@@ -120,6 +120,8 @@ nav button.hot.on{background:linear-gradient(135deg,var(--hot),#ff2d75)}
 .shr{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;margin-top:12px}
 .shr .btn{padding:13px 8px;font-size:14px}
 .shr .line{background:#06c755;border-color:#06c755;color:#fff}
+.code.rf{background:rgba(255,176,32,.14);color:#ffb020;border-color:rgba(255,176,32,.6)}
+.chip.cd.rf.on{background:#ffb020;border-color:#ffb020;box-shadow:0 0 14px rgba(255,176,32,.45)}
 .empty{text-align:center;color:var(--mut);padding:50px 0}
 </style>
 </head>
@@ -174,12 +176,13 @@ const evKey=d=>{const m=/^(\d\d)\/(\d\d)\/(\d\d)$/.exec(d||"");return m?(+m[3])*
 const EVS=[...new Set(M.concat(H).map(u=>u.date).filter(Boolean))].sort((a,b)=>evKey(a)-evKey(b));
 const EARLY=EVS.filter(d=>d.includes("/")).slice(0,2);
 const evTxt=d=>/^\d{4}$/.test(d)?"ปี "+d:d;
-const hasCode=u=>codeTxt((mByUnit[u.unit]||u).code)!=="ไม่มีรหัส";
+const codeKind=c=>{const t=codeTxt(c);return t==="ไม่มีรหัส"?"none":t==="ไม่รับ"?"refuse":"ok"};
+const kindOf=u=>codeKind((mByUnit[u.unit]||u).code);
 function drawChips(){
   const arr=tab==="all"?[["free","ว่าง"],["all","ทั้งหมด"],["sold","SOLD"],["lock","ล็อก/ห้ามขาย"],["cancel","รอยกเลิก"]]:[["free","ว่าง"],["all","ทั้งหมด"],["sold","SOLD"]];
   $("#chips").innerHTML=arr.map(([k,l])=>'<div class="chip '+(tab==="hot"?"hot":"")+" "+(chip===k?"on":"")+'" data-k="'+k+'">'+l+"</div>").join("");
   $("#chips2").innerHTML=[["E2",EARLY.map(d=>d.slice(0,5)).join(" + ")],["Y26","ปี 2026"]].concat(EVS.filter(d=>d.includes("/")).map(d=>[d,d]),EVS.filter(d=>/^\d{4}$/.test(d)).map(d=>[d,evTxt(d)]),[["","ทั้งหมด"]]).map(([k,l])=>'<div class="chip ev '+(evt===k?"on":"")+'" data-k="'+esc(k)+'">'+esc(l)+"</div>").join("");
-  $("#chips3").innerHTML=[["","ทั้งหมด",""],["has","มีรหัส","cd"],["none","ไม่มีรหัส","cd no"]].map(([k,l,c])=>'<div class="chip '+c+" "+(codeF===k?"on":"")+'" data-k="'+k+'">'+l+"</div>").join("");
+  $("#chips3").innerHTML=[["","ทั้งหมด",""],["has","มีรหัส","cd"],["none","ไม่มีรหัส","cd no"],["refuse","ไม่รับ","cd rf"]].map(([k,l,c])=>'<div class="chip '+c+" "+(codeF===k?"on":"")+'" data-k="'+k+'">'+l+"</div>").join("");
 }
 function baseMatch(u){
   const st=u.status||"";
@@ -188,8 +191,7 @@ function baseMatch(u){
   if(chip==="lock"&&!(st.startsWith("LOCK")||st==="ห้ามขาย"))return false;
   if(chip==="cancel"&&!st.startsWith("รอยกเลิก"))return false;
   if(evt==="E2"){if(!EARLY.includes(u.date))return false}else if(evt==="Y26"){if(!/\/26$/.test(u.date||""))return false}else if(evt!==""&&u.date!==evt)return false;
-  if(codeF==="has"&&!hasCode(u))return false;
-  if(codeF==="none"&&hasCode(u))return false;
+  if(codeF!==""&&kindOf(u)!=={has:"ok",none:"none",refuse:"refuse"}[codeF])return false;
   const pMin=$("#pMin").value,pMax=$("#pMax").value;
   if(pMin!==""||pMax!==""){const n=tab==="hot"?u.pro:(u.price==null?null:u.price-(u.cb||0));
     if(n==null||(pMin!==""&&n<+pMin)||(pMax!==""&&n>+pMax))return false}
@@ -218,7 +220,7 @@ function render(reset){
   $("#more").style.display=shown<list.length?"block":"none";
 }
 const viewTxt=v=>v==="ใน"?"วิวใน":v==="นอก"?"วิวนอก":"-";
-const codeBadge=(c,big)=>{const t=codeTxt(c);return '<div class="code '+(t==="ไม่มีรหัส"?"none":"")+'"'+(big?' style="font-size:24px"':"")+'>'+(t==="ไม่มีรหัส"?"ไม่มีรหัส":"รหัส "+esc(t))+"</div>"};
+const codeBadge=(c,big)=>{const t=codeTxt(c),k=codeKind(c);return '<div class="code '+(k==="none"?"none":k==="refuse"?"rf":"")+'"'+(big?' style="font-size:24px"':"")+'>'+(k==="none"?"ไม่มีรหัส":"รหัส "+esc(t))+"</div>"};
 const evBadge=d=>d?'<div class="ev">📅 ห้องเสร็จ/โอนฯ '+esc(evTxt(d))+"</div>":"";
 const title=(unit,house,big)=>'<div class="unit"'+(big?' style="font-size:30px;padding-right:44px"':"")+'>'+esc(unit)+(house?'<span class="hse">('+esc(house)+")</span>":"")+"</div>";
 const calc=(u,m)=>{const d=m===1?(u.cb||0):(u.cbAll||0);return '<div class="calc '+(m===2?"m2":"")+'"><div><span>ราคาขาย</span><b>'+baht(u.price)+'</b></div><div class="dc"><span>'+(m===1?"ส่วนลด (CashBack)":"ส่วนลดรวมทุกโปร")+'</span><b>−'+baht(d)+'</b></div><div class="nt"><span>ราคาสุทธิ</span><b>'+baht(u.price==null?null:u.price-d)+"</b></div></div>"};
@@ -262,10 +264,10 @@ function shareText(unit){
   const L=[];
   L.push("🏢 KAVALON","━━━━━━━━━━━━━━");
   L.push("📍 "+u.unit+(u.house?"  ("+u.house+")":""));
-  L.push("🔑 รหัส: "+(code==="ไม่มีรหัส"?"❗ไม่มีรหัส":code));
+  L.push("🔑 รหัส: "+(code==="ไม่มีรหัส"?"❗ไม่มีรหัส":code==="ไม่รับ"?"⚠️ ไม่รับ":code));
   L.push(ic+" สถานะ: "+(stClass(st)[0]));
   L.push("","🛏 "+(u.type||"-"));
-  L.push("📐 "+(u.area?m(u.area)+" ตร.ม.":"-")+" • ชั้น "+(u.floor||"-")+" • "+(u.dir||"-")+" • "+viewTxt(u.view));
+  L.push("📐 "+(u.area?m(u.area)+" ตร.ม. (โฉนด)":"-")+" • ชั้น "+(u.floor||"-")+" • "+(u.dir||"-")+" • "+viewTxt(u.view));
   if(u.detail)L.push("🏷 "+u.detail);
   if(u.date)L.push("📅 ห้องเสร็จ/โอนฯ: "+evTxt(u.date)+(u.plan?" ("+u.plan+")":""));
   L.push("━━━━━━━━━━━━━━");
@@ -314,7 +316,7 @@ function openSheet(unit){
   curUnit=unit;
   const u=mByUnit[unit],h=hotKey[unit],base=u||h,st=stClass(base.status);
   const line=(l,v)=>'<div><i>'+l+'</i> '+esc(v||"-")+"</div>";
-  const info='<div class="info">'+line("Unit Detail",base.detail)+line("TYPE",base.type)+"<div><b>"+(base.area?nf(base.area)+" ตร.ม.":"-")+"</b> • "+esc(base.dir||"-")+" • <b>"+viewTxt(base.view)+"</b></div></div>";
+  const info='<div class="info">'+line("Unit Detail",base.detail)+line("TYPE",base.type)+"<div><b>"+(base.area?nf(base.area)+" ตร.ม.":"-")+"</b> (โฉนด) • "+esc(base.dir||"-")+" • <b>"+viewTxt(base.view)+"</b></div></div>";
   let s='<div class="grab"></div><button class="x" id="xc">✕</button>';
   s+='<div class="hd"><div><div class="unit" style="font-size:27px">'+esc(unit)+(u&&u.house?'<span class="hse">('+esc(u.house)+")</span>":"")+'</div><span class="badge" style="--st:'+st[1]+'">'+esc(st[0])+"</span><br>"+codeBadge(u&&u.code,true)+"</div>"+info+"</div>";
   s+="<div>"+evBadge(base.date)+(base.plan?' <span class="ev" style="background:rgba(255,255,255,.06);border-color:var(--line);color:var(--tx)">'+esc(base.plan)+"</span>":"")+"</div>";
