@@ -177,12 +177,13 @@ const EVS=[...new Set(M.concat(H).map(u=>u.date).filter(Boolean))].sort((a,b)=>e
 const EARLY=EVS.filter(d=>d.includes("/")).slice(0,2);
 const evTxt=d=>/^\d{4}$/.test(d)?"ปี "+d:d;
 const codeKind=c=>{const t=codeTxt(c);return t==="ไม่มีรหัส"?"none":t==="ไม่รับ"?"refuse":"ok"};
+const HAS_REFUSE=M.some(u=>codeKind(u.code)==="refuse");
 const kindOf=u=>codeKind((mByUnit[u.unit]||u).code);
 function drawChips(){
   const arr=tab==="all"?[["free","ว่าง"],["all","ทั้งหมด"],["sold","SOLD"],["lock","ล็อก/ห้ามขาย"],["cancel","รอยกเลิก"]]:[["free","ว่าง"],["all","ทั้งหมด"],["sold","SOLD"]];
   $("#chips").innerHTML=arr.map(([k,l])=>'<div class="chip '+(tab==="hot"?"hot":"")+" "+(chip===k?"on":"")+'" data-k="'+k+'">'+l+"</div>").join("");
   $("#chips2").innerHTML=[["E2",EARLY.map(d=>d.slice(0,5)).join(" + ")],["Y26","ปี 2026"]].concat(EVS.filter(d=>d.includes("/")).map(d=>[d,d]),EVS.filter(d=>/^\d{4}$/.test(d)).map(d=>[d,evTxt(d)]),[["","ทั้งหมด"]]).map(([k,l])=>'<div class="chip ev '+(evt===k?"on":"")+'" data-k="'+esc(k)+'">'+esc(l)+"</div>").join("");
-  $("#chips3").innerHTML=[["","ทั้งหมด",""],["has","มีรหัส","cd"],["none","ไม่มีรหัส","cd no"],["refuse","ไม่รับ","cd rf"]].map(([k,l,c])=>'<div class="chip '+c+" "+(codeF===k?"on":"")+'" data-k="'+k+'">'+l+"</div>").join("");
+  $("#chips3").innerHTML=[["","ทั้งหมด",""],["has","มีรหัส","cd"],["none","ไม่มีรหัส","cd no"]].concat(HAS_REFUSE?[["refuse","ไม่รับ","cd rf"]]:[]).map(([k,l,c])=>'<div class="chip '+c+" "+(codeF===k?"on":"")+'" data-k="'+k+'">'+l+"</div>").join("");
 }
 function baseMatch(u){
   const st=u.status||"";

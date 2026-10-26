@@ -23,7 +23,8 @@ const code = v => { v = clean(v); return v === 0 || v === '0' || v === 'ไม�
 // status text case varies ("SOLD" / "Sold")
 const status = v => { v = clean(v); return /^sold$/i.test(v) ? 'SOLD' : v; };
 
-const master = rd(wb.SheetNames.find(n => /^Pricelist_.*\(Master\)/.test(n))).slice(2).filter(r => r[2]).map(r => ({
+// real unit rows have a Tower; stray unit-id-only lists pasted below the table are skipped (.filter below)
+const master = rd(wb.SheetNames.find(n => /^Pricelist_.*\(Master\)/.test(n))).slice(2).filter(r => r[2] && r[5]).map(r => ({
   no: clean(r[0]), open: clean(r[1]), unit: clean(r[2]), house: clean(r[3]), code: code(r[4]),
   tower: clean(r[5]), floor: clean(r[6]), type: clean(r[7]), dir: z(r[8]), area: nz(r[9]), view: z(r[10]),
   status: status(r[11]), detail: clean(r[12]),
