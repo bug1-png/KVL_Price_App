@@ -189,11 +189,14 @@ fillSel("#fDir","ทิศ",uniq(M,"dir").sort());
 fillSel("#fDetail","Unit Detail",uniq(M,"detail").sort());
 $("#fSort").innerHTML='<option value="unit">เรียง: เลขที่ห้อง</option><option value="pa">ราคา ต่ำ→สูง</option><option value="pd">ราคา สูง→ต่ำ</option><option value="na">สุทธิ ต่ำ→สูง</option><option value="nd">สุทธิ สูง→ต่ำ</option>';
 $("#avail").textContent=nf(M.filter(isFree).length);
-let mode=1,evt="E2",codeF="",unlocked=false;
+let mode=1,codeF="",unlocked=false;
 try{unlocked=sessionStorage.getItem("hs")==="1"}catch(e){}
 const evKey=d=>{const m=/^(\d\d)\/(\d\d)\/(\d\d)$/.exec(d||"");return m?(+m[3])*10000+(+m[2])*100+(+m[1]):99999999};
 const EVS=[...new Set(M.concat(H).map(u=>u.date).filter(Boolean))].sort((a,b)=>evKey(a)-evKey(b));
-const EARLY=EVS.filter(d=>d.includes("/")).slice(0,2);
+// completion-date chips are multi-select. Default = the 3 earliest dates (24/10, 07/11, 28/11 today). Empty selection = no filter.
+const DATES26=EVS.filter(d=>d.includes("/"));
+const EV_DEFAULT=DATES26.slice(0,3);
+let evSel=new Set(EV_DEFAULT);
 const evTxt=d=>/^\d{4}$/.test(d)?"ปี "+d:d;
 const codeKind=c=>{const t=codeTxt(c);return t==="ไม่มีรหัส"?"none":t==="ไม่รับ"?"refuse":"ok"};
 const HAS_REFUSE=M.some(u=>codeKind(u.code)==="refuse");
@@ -201,7 +204,12 @@ const kindOf=u=>codeKind((mByUnit[u.unit]||u).code);
 function drawChips(){
   const arr=tab==="all"?[["free","ว่าง"],["all","ทั้งหมด"],["sold","SOLD"],["lock","ล็อก/ห้ามขาย"],["cancel","รอยกเลิก"]]:[["free","ว่าง"],["all","ทั้งหมด"],["sold","SOLD"]];
   $("#chips").innerHTML=arr.map(([k,l])=>'<div class="chip '+(tab==="hot"?"hot":"")+" "+(chip===k?"on":"")+'" data-k="'+k+'">'+l+"</div>").join("");
-  $("#chips2").innerHTML=[["E2",EARLY.map(d=>d.slice(0,5)).join(" + ")],["Y26","ปี 2026"]].concat(EVS.filter(d=>d.includes("/")).map(d=>[d,d]),EVS.filter(d=>/^\d{4}$/.test(d)).map(d=>[d,evTxt(d)]),[["","ทั้งหมด"]]).map(([k,l])=>'<div class="chip ev '+(evt===k?"on":"")+'" data-k="'+esc(k)+'">'+esc(l)+"</div>").join("");
+  $("#chips2").innerHTML=(()=>{
+    const all=evSel.size===0||EVS.every(d=>evSel.has(d));
+    const is26=DATES26.length>0&&DATES26.every(d=>evSel.has(d))&&EVS.every(d=>DATES26.includes(d)||!evSel.has(d));
+    const items=[["Y26","ปี 2026",is26&&!all]].concat(EVS.map(d=>[d,d.includes("/")?d:evTxt(d),evSel.has(d)&&!all]),[["ALL","ทั้งหมด",all]]);
+    return items.map(([k,l,on])=>'<div class="chip ev '+(on?"on":"")+'" data-k="'+esc(k)+'">'+esc(l)+"</div>").join("");
+  })();
   $("#chips3").innerHTML=[["","ทั้งหมด",""],["has","มีรหัส","cd"],["none","ไม่มีรหัส","cd no"]].concat(HAS_REFUSE?[["refuse","ไม่รับ","cd rf"]]:[]).map(([k,l,c])=>'<div class="chip '+c+" "+(codeF===k?"on":"")+'" data-k="'+k+'">'+l+"</div>").join("");
 }
 function baseMatch(u){
@@ -210,7 +218,7 @@ function baseMatch(u){
   if(chip==="sold"&&st!=="SOLD")return false;
   if(chip==="lock"&&!(st.startsWith("LOCK")||st==="ห้ามขาย"))return false;
   if(chip==="cancel"&&!st.startsWith("รอยกเลิก"))return false;
-  if(evt==="E2"){if(!EARLY.includes(u.date))return false}else if(evt==="Y26"){if(!/\/26$/.test(u.date||""))return false}else if(evt!==""&&u.date!==evt)return false;
+  if(evSel.size&&!evSel.has(u.date))return false;
   if(codeF!==""&&kindOf(u)!=={has:"ok",none:"none",refuse:"refuse"}[codeF])return false;
   const pMin=$("#pMin").value,pMax=$("#pMax").value;
   if(pMin!==""||pMax!==""){const n=tab==="hot"?u.pro:(u.price==null?null:u.price-(u.cb||0));
@@ -431,7 +439,11 @@ $("#pinx").onclick=()=>{$("#pin").style.display="none";pinCb=null};
 $("#sheetbg").onclick=()=>closeSheet();
 $("#list").addEventListener("click",e=>{const c=e.target.closest(".card");if(c)openSheet(c.dataset.u)});
 $("#chips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;chip=c.dataset.k;drawChips();render()});
-$("#chips2").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;evt=c.dataset.k;drawChips();render()});
+$("#chips2").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;const k=c.dataset.k;
+  if(k==="ALL")evSel=new Set();
+  else if(k==="Y26")evSel=new Set(DATES26);
+  else if(evSel.has(k))evSel.delete(k);else evSel.add(k);
+  drawChips();render()});
 $("#chips3").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;codeF=c.dataset.k;drawChips();render()});
 $("#more").onclick=()=>render(false);
 let tmr;$("#q").addEventListener("input",()=>{clearTimeout(tmr);tmr=setTimeout(render,180)});
@@ -439,7 +451,7 @@ $("#asof").textContent=DATA.meta&&DATA.meta.asof?"ข้อมูล ณ "+DATA.
 let ptm;["#pMin","#pMax"].forEach(id=>$(id).addEventListener("input",()=>{clearTimeout(ptm);ptm=setTimeout(render,250)}));
 $("#ftog").onclick=()=>{const on=$("#filters").classList.toggle("show");$("#ftog").classList.toggle("on",on);if(on)scrollTo(0,0)};
 [["#fTower","tower"],["#fFloor","floor"],["#fType","type"],["#fView","view"],["#fDir","dir"],["#fDetail","detail"],["#fSort","sort"]].forEach(([id,k])=>{$(id).onchange=e=>{f[k]=e.target.value;render()}});
-function setTab(t){tab=t;chip="free";evt="E2";codeF="";$("#tAll").classList.toggle("on",t==="all");$("#tHot").classList.toggle("on",t==="hot");drawChips();render();scrollTo(0,0)}
+function setTab(t){tab=t;chip="free";evSel=new Set(EV_DEFAULT);codeF="";$("#tAll").classList.toggle("on",t==="all");$("#tHot").classList.toggle("on",t==="hot");drawChips();render();scrollTo(0,0)}
 $("#tAll").onclick=()=>setTab("all");$("#tHot").onclick=()=>setTab("hot");
 window.addEventListener("scroll",()=>{if(shown<list.length&&innerHeight+scrollY>document.body.offsetHeight-700)render(false)},{passive:true});
 drawChips();render();
